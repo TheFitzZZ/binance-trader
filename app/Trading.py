@@ -362,17 +362,18 @@ class Trading():
             if self.cancel(symbol, orderId):
                 # Stop loss
                 lastBid, lastAsk = Orders.get_order_book(symbol)
-                sello = Orders.sell_market(symbol, quantity)
                 print self.log_wrap('Stop-loss, sell market, %s' % (lastAsk))
-                flag2 = 0
-                while (flag2!=1):
+                flago = 0
+                while (flago != 1):
+                    sleep(1)
                     try:
-                        sell_id = sello['orderId']
+                        sell_id = Orders.sell_market(symbol, quantity)['orderId']
                     except Exception, error:
-                        sello = Orders.sell_market(symbol, quantity)
+                        quantity = quantity - 1         
                     else:
-                        flag2 = 1
-                        break
+                        flago = 1
+                
+                               
             else:
                 print self.log_wrap('Cancel did not work... Might have been sold before stop loss...')
                 return True
@@ -380,17 +381,17 @@ class Trading():
         elif status == 'PARTIALLY_FILLED':
             self.order_id = 0
             print self.log_wrap('Sell partially filled, hold sell position to prevent dust coin. Continue trading...')
-            flag2 = 0
+
             new_quantity = old_qty - quantity 
-            sello = Orders.sell_market(symbol, new_quantity)
-            while (flag2!=1):
-                try:
-                    sell_id = sello['orderId']
-                except Exception, error:
-                    sello = Orders.sell_market(symbol, new_quantity)
-                else:
-                    flag2 = 1
-                    break
+            flago = 0
+                while (flago != 1):
+                    sleep(1)
+                    try:
+                        sell_id = Orders.sell_market(symbol, new_quantity)['orderId']
+                    except Exception, error:
+                        new_quantity = new_quantity - 1         
+                    else:
+                        flago = 1
             time.sleep(self.WAIT_TIME_CHECK_SELL)
             return True
 
