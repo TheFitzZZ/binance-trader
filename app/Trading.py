@@ -253,15 +253,18 @@ class Trading():
             
         if quantity < self.sell_qty:
             quantity = self.format_quantity(float(self.sell_qty))
-      
+        print('Quantity: %s' % (quantity))
+        print('Self Quantity: %s' % (self.sell_qty))
         flago = 0
         sub = quantity * 0.005
         while (flago != 1):
             sleep(1)
             try:
                 sell_id = Orders.sell_limit(symbol, quantity, sell_price)['orderId']
+                print('Quantity: %s' % (quantity))
             except Exception, error:
-                quantity = self.format_quantity(float(quantity - sub))      
+                quantity = self.format_quantity(float(quantity - sub))
+                print('Quantity: %s' % (quantity))
             else:
                 flago = 1
                 print self.log_wrap("Order placed. Confirming...")
