@@ -384,15 +384,14 @@ class Trading():
 
             new_quantity = old_qty - quantity 
             flago = 0
-                while (flago != 1):
-                    sleep(1)
-                    try:
-                        sell_id = Orders.sell_market(symbol, new_quantity)['orderId']
-                    except Exception, error:
-                        new_quantity = new_quantity - 1         
-                    else:
-                        flago = 1
-            time.sleep(self.WAIT_TIME_CHECK_SELL)
+            while (flago != 1):
+                sleep(1)
+                try:
+                    sell_id = Orders.sell_market(symbol, new_quantity)['orderId']
+                except Exception, error:
+                    new_quantity = new_quantity - 1         
+                else:
+                    flago = 1
             return True
 
         elif status == 'FILLED':
