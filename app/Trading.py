@@ -387,14 +387,14 @@ class Trading():
             self.order_id = 0
             print self.log_wrap('Sell partially filled, hold sell position to prevent dust coin. Continue trading...')
 
-            new_quantity = old_qty - quantity 
+            new_quantity = self.format_quantity(float(old_qty - quantity)) 
             flago = 0
             while (flago != 1):
                 sleep(1)
                 try:
                     sell_id = Orders.sell_market(symbol, new_quantity)['orderId']
                 except Exception, error:
-                    new_quantity = new_quantity - 1         
+                    new_quantity = self.format_quantity(float(new_quantity - 1))
                 else:
                     flago = 1
             return True
@@ -435,7 +435,7 @@ class Trading():
             exit(1)
 
     def check_partial_order(self, symbol, orderId, price):
-        time.sleep(self.WAIT_TIME_BUY_SELL)
+        #time.sleep(self.WAIT_TIME_BUY_SELL)
         self.partial_status = "hold"
         quantity = 0
 
