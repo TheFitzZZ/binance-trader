@@ -255,12 +255,13 @@ class Trading():
             quantity = self.format_quantity(float(self.sell_qty))
       
         flago = 0
+        sub = quantity * 0.005
         while (flago != 1):
             sleep(1)
             try:
                 sell_id = Orders.sell_limit(symbol, quantity, sell_price)['orderId']
             except Exception, error:
-                quantity = self.format_quantity(float(quantity - 1))      
+                quantity = self.format_quantity(float(quantity - sub))      
             else:
                 flago = 1
                 print self.log_wrap("Order placed. Confirming...")
@@ -368,14 +369,21 @@ class Trading():
                 lastBid, lastAsk = Orders.get_order_book(symbol)
                 print self.log_wrap('Stop-loss, sell market, %s' % (lastAsk))
                 flago = 0
+                sub = quantity * 0.005
                 while (flago != 1):
-                    sleep(1)
+                    stop_order = Orders.get_order(symbol, orderId)
+                    status = stop_order['status']
+                    if status == 'FILLED':
+                        return True
+                        flago = 1
+                        break
                     try:
                         sell_id = Orders.sell_market(symbol, quantity)['orderId']
                     except Exception, error:
-                        quantity = self.format_quantity(float(quantity - 1))      
+                        quantity = self.format_quantity(float(quantity - sub))      
                     else:
                         flago = 1
+                    sleep(1)
                 
                                
             else:
@@ -387,17 +395,23 @@ class Trading():
             self.order_id = 0
             print self.log_wrap('Sell partially filled, hold sell position to prevent dust coin. Continue trading...')
 
-            new_quantity = self.format_quantity(float(old_qty - quantity)) 
+            new_quantity = self.format_quantity(float(old_qty - quantity))
+            sub = new_quantity * 0.005
             flago = 0
             while (flago != 1):
                 sleep(1)
+                stop_order = Orders.get_order(symbol, orderId)
+                status = stop_order['status']
+                if status == 'FILLED':
+                    return True
+                    flago = 1
+                    break
                 try:
                     sell_id = Orders.sell_market(symbol, new_quantity)['orderId']
                 except Exception, error:
-                    new_quantity = self.format_quantity(float(new_quantity - 1))
+                    new_quantity = self.format_quantity(float(new_quantity - sub))
                 else:
-                    flago = 1
-            return True
+                    return True
 
         elif status == 'FILLED':
             self.order_id = 0
