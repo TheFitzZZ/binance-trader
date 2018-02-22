@@ -260,7 +260,7 @@ class Trading():
             try:
                 sell_id = Orders.sell_limit(symbol, quantity, sell_price)['orderId']
             except Exception, error:
-                quantity = quantity - 1         
+                quantity = self.format_quantity(float(quantity - 1))      
             else:
                 flago = 1
                 print self.log_wrap("Order placed. Confirming...")
@@ -373,7 +373,7 @@ class Trading():
                     try:
                         sell_id = Orders.sell_market(symbol, quantity)['orderId']
                     except Exception, error:
-                        quantity = quantity - 1         
+                        quantity = self.format_quantity(float(quantity - 1))      
                     else:
                         flago = 1
                 
