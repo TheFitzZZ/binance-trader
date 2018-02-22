@@ -181,11 +181,12 @@ class Trading():
                     return
                 if buy_order['status'] == 'FILLED' and buy_order['side'] == "BUY":
                     print self.log_wrap("Buy order filled... Try sell...")
-                    self.total_buy = self.total_buy + 1
+                    self.total_buy = self.total_buy + 1 #Count the buy
                     confirm = True
                 elif buy_order['status'] == 'PARTIALLY_FILLED' and buy_order['side'] == "BUY":
                     print self.log_wrap("Buy order partially filled... Wait 1 more second...")
-                    quantity = self.check_partial_order(symbol, orderId, sell_price)         
+                    quantity = self.check_partial_order(symbol, orderId, sell_price)
+                    self.total_buy = self.total_buy + 1 #Count partial buy also as buy
                     confirm = True
                 else:
                     cancel_flag = False
@@ -273,6 +274,8 @@ class Trading():
             print self.log_wrap('LastPrice : %.8f' % last_price)
             print self.log_wrap('Profit: %%%s. Buy price: %.8f Sell price: %.8f' % (self.option.profit, float(buy_order['price']), sell_price))
 
+            self.total_sell = self.total_sell + 1 #Count sell - not sure if that's the right spot tho
+
             self.order_id = 0
             self.bot_status = "sell"
             time.sleep(self.WAIT_TIME_CHECK_SELL)
@@ -312,9 +315,10 @@ class Trading():
                     print self.log_wrap('Waiting to stop loss...')
                     time.sleep(self.WAIT_TIME_CHECK_SELL)
                     self.stop(symbol, quantity, sell_id, sell_price)
-                    self.total_stoploss = self.total_stoploss + 1
+                    self.total_stoploss = self.total_stoploss + 1 #Count stop loss
                     time.sleep(self.WAIT_TIME_STOP_LOSS)
-            print self.log_wrap('Sold! Continue trading...')            
+            print self.log_wrap('Sold! Continue trading...')
+            self.total_sell = self.total_sell + 1 #Count sell
             self.order_id = 0
             self.bot_status = "sell"
         else:
@@ -340,7 +344,7 @@ class Trading():
                         print self.log_wrap('Status: %s Current price: %s Sell price: %s' % (sell_status, lastPrice, sell_price))
                         break
             print self.log_wrap('Sold! Continue trading...')
-            self.total_sell = self.total_sell + 1
+            self.total_sell = self.total_sell + 1 #Count sell
             order_id = 0
             self.order_id = 0
             self.bot_status = "sell"
@@ -376,6 +380,7 @@ class Trading():
                                
             else:
                 print self.log_wrap('Cancel did not work... Might have been sold before stop loss...')
+                self.total_sell = self.total_sell + 1 #Count sell
                 return True
 
         elif status == 'PARTIALLY_FILLED':
@@ -397,6 +402,7 @@ class Trading():
         elif status == 'FILLED':
             self.order_id = 0
             print self.log_wrap('Order filled before sell at loss!')
+            self.total_sell = self.total_sell + 1 #Count sell
             return True
         else:
             return False
